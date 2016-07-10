@@ -8,6 +8,7 @@
 #' @param boot_reps Integer for the number of bootstrap replications
 #' @param H0 Number indicating the null hypothesis, default is 0
 #' @param x_interest X variable of interest, defaults to 'X'
+#' @param cores Number of cores for parallel bootstrap
 #' @return Vector with p-value for clusterby variable
 #'
 wildclustboot <- function(bootby, data, model, clusterby, boot_dist, boot_reps, x_interest, H0 = 0, cores = 1){
@@ -45,6 +46,7 @@ wildclustboot <- function(bootby, data, model, clusterby, boot_dist, boot_reps, 
 #' @param boot_reps Integer for the number of bootstrap replications
 #' @param H0 Number indicating the null hypothesis, default is 0
 #' @param x_interest X variable of interest, defaults to 'X'
+#' @param cores Number of cores for parallel bootstrap
 #' @return Named vector of p-values, with names representing combination of clusterby and bootby
 #'
 wildclustboot_rep <- function(dgp, dgp_args, formula, bootby, clusterby, boot_dist, boot_reps, x_interest, H0 = 0, cores = 1){
@@ -89,6 +91,7 @@ wildclustboot_rep <- function(dgp, dgp_args, formula, bootby, clusterby, boot_di
 #' @param boot_reps Integer for the number of bootstrap replications
 #' @param H0 Number indicating the null hypothesis, default is 0
 #' @param x_interest X variable of interest, defaults to 'X'
+#' @param cores Number of cores for parallel bootstrap
 #' @return Named matrix of p-values, with row for each rep and names representing combination of clusterby and bootby
 #' @export
 wildclustboot_mc <- function(reps, dgp, dgp_args, formula, bootby, clusterby, boot_dist, boot_reps, x_interest, H0 = 0, cores = 1){
