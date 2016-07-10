@@ -90,7 +90,7 @@ wildclustboot_rep <- function(dgp, dgp_args, formula, bootby, clusterby, boot_di
 #' @param H0 Number indicating the null hypothesis, default is 0
 #' @param x_interest X variable of interest, defaults to 'X'
 #' @return Named matrix of p-values, with row for each rep and names representing combination of clusterby and bootby
-#'
+#' @export
 wildclustboot_mc <- function(reps, dgp, dgp_args, formula, bootby, clusterby, boot_dist, boot_reps, x_interest, H0 = 0, cores = 1){
 
   p_values <- replicate(n = reps, expr = wildclustboot_rep(dgp = dgp,
