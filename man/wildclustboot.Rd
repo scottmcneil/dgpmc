@@ -23,6 +23,8 @@ wildclustboot(bootby, data, model, clusterby, boot_dist, boot_reps, x_interest,
 \item{x_interest}{X variable of interest, defaults to 'X'}
 
 \item{H0}{Number indicating the null hypothesis, default is 0}
+
+\item{cores}{Number of cores for parallel bootstrap}
 }
 \value{
 Vector with p-value for clusterby variable

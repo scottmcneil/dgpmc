@@ -25,6 +25,8 @@ wildclustboot_mc(reps, dgp, dgp_args, formula, bootby, clusterby, boot_dist,
 \item{x_interest}{X variable of interest, defaults to 'X'}
 
 \item{H0}{Number indicating the null hypothesis, default is 0}
+
+\item{cores}{Number of cores for parallel bootstrap}
 }
 \value{
 Named matrix of p-values, with row for each rep and names representing combination of clusterby and bootby
