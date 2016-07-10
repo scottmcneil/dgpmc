@@ -40,7 +40,7 @@ autocorr_group <- function(t, G, rho = 1, mu = 0, sigma = 1){
 #' @param mu Mean for random normal distribution
 #' @param sigma Standard deviation for ranfom normal distribution
 #' @return Matrix with random variable, t and G columns
-#'
+#' @export
 autocorr_dgp <- function(t, G, ng, mu = 0, sigma = 1, rho = 1){
 
   #Return error if ng not integer or G length vector
