@@ -4,7 +4,8 @@
 \alias{autocorr_dgp}
 \title{Generates t*sum(ng) or t*G*ng random normal variables indexed by t and G}
 \usage{
-autocorr_dgp(t, G, ng, mu = 0, sigma = 1, rho = 1)
+autocorr_dgp(t, G, ng, rho = 1, lambda = 1, gamma = 1, mu = 0,
+  sigma = 1)
 }
 \arguments{
 \item{t}{The number of time periods for all G}
