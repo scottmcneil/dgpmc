@@ -41,7 +41,7 @@ autocorr_group <- function(t, G, rho = 1, mu = 0, sigma = 1){
 #' @param sigma Standard deviation for ranfom normal distribution
 #' @return Matrix with random variable, t and G columns
 #' @export
-autocorr_dgp <- function(t, G, ng, mu = 0, sigma = 1, rho = 1){
+autocorr_dgp <- function(t, G, ng, rho = 1, lambda = 1, gamma = 1, mu = 0, sigma = 1){
 
   #Return error if ng not integer or G length vector
   if (length(ng) != 1 & length(ng) != G){
@@ -86,4 +86,30 @@ autocorr_dgp <- function(t, G, ng, mu = 0, sigma = 1, rho = 1){
   final_data <- full_data[c('i', 'G', 'tG', 'Y', 'X')]
   return(final_data)
 
+}
+
+#'Generates G*ng random normal variables indexed by G
+#'
+#' @param G The number of groups in each time period
+#' @param ng Obs per group, either int or G-length vector
+#' @return Dataframe with X, Y and clusterby random variables
+#' @export
+simple_DGP <- function(ng,G){
+
+  #Create clusterby variable
+  clusterby <- as.integer(0:(ng*G-1)/ng+1)
+
+  #Create individual level random data
+  zig <- rnorm(n = G*ng,mean = 0,sd = 1)
+  eig <- rnorm(n = G*ng,mean = 0,sd = 1)
+
+  #Create group level random data
+  zg <- rep(rnorm(n = G,mean = 0,sd = 1),each=ng)
+  eg <- rep(rnorm(n = G,mean = 0,sd = 1),each=ng)
+
+  #Combine data
+  X <- zg + zig
+  Y <- zg + zig + eg + eig
+
+  return(data.frame(Y = Y, X = X, clusterby = clusterby))
 }
