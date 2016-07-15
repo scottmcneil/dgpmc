@@ -10,7 +10,7 @@ Installation
 
 The easiest way to install this package is via devtools. First, run the following code:
 
-    install.libraries(devtools)
+    install.packages('devtools')
 
 Once devtools is installed, go get a [personal API key](https://github.com/settings/tokens) and then run the following code:
 
@@ -58,7 +58,7 @@ For example:
 
 Currently the only save type that's supported is `'db'` but I can add others.
 
-`multi_wild_cluster_boot_mc` is essentially the same as `wild_cluster_boot_mc`, but it allows you to specify vectors for DGP arguments, and will run a Monte Carlo on each possible combination of those arguments.
+`multi_wild_cluster_boot_mc` is essentially the same as `wild_cluster_boot_mc`, but it allows you to specify vectors for DGP arguments, and will run a Monte Carlo on each possible combination of those arguments. It also allows you to turn on a progress bar.
 
 For example:
 
