@@ -8,8 +8,8 @@ Description: More about what it does (maybe more than one line)
 License: What license is it under?
 LazyData: TRUE
 Suggests:
-    testthat
-Imports:
-    boot,
+    testthat,
     wildclusterboot
+Imports:
+    boot
 RoxygenNote: 5.0.1
