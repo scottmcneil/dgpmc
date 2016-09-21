@@ -4,8 +4,7 @@
 \alias{monte_carlo_stat}
 \title{Run one Monte Carlo repetition}
 \usage{
-monte_carlo_stat(rep, stat_func, stat_args, rand_func, rand_args,
-  progbar = NULL)
+monte_carlo_stat(rep, stat_func, stat_args, rand_func, rand_args, progbar)
 }
 \arguments{
 \item{rep}{Integer indicating the current Monte Carlo repetition}
