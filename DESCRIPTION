@@ -1,15 +1,12 @@
-Package: wildclusterbootsim
+Package: dgpmc
 Type: Package
-Title: What the Package Does (Title Case)
-Version: 0.1.0
-Author: Who wrote it
-Maintainer: Who to complain to <yourfault@somewhere.net>
-Description: More about what it does (maybe more than one line)
+Title: Random Data Monte Carlo
+Version: 0.2.0
+Author: Scott McNeil
+Maintainer: Scott McNeil <scott.mcneil@carleton.ca>
+Description: Thin wrapper for performing Monte Carlo simulations on a statistical function via a specified data generation proccess.
 License: What license is it under?
 LazyData: TRUE
 Suggests:
-    testthat,
-    wildclusterboot
-Imports:
-    boot
+    testthat
 RoxygenNote: 5.0.1
