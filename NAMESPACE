@@ -2,4 +2,5 @@
 
 export(autocorr_dgp)
 export(dgpmc)
+export(multiway_DGP)
 export(simple_DGP)
