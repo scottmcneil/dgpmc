@@ -113,3 +113,56 @@ simple_DGP <- function(ng,G){
 
   return(data.frame(Y = Y, X = X, clusterby = clusterby))
 }
+
+#' Generate multi-way grouped random data
+#'
+#' @param dims Integer indicating the number of group dimensions
+#' @param groups Vector of dims length with integers indicating total groups for each group dimension
+#' @param rho Float indicating portion of first dimension groups for which cells wil have theta observations instead of 1
+#' @return theta
+#' @export
+multiway_DGP <- function(num_dims, groups, rho = 0, theta = 1, dim_names = rev(LETTERS)[19:(18+num_dims)]){
+
+  groups_list <- mapply(function(dim_name, groups) paste0(dim_name, 1:groups),
+                        dim_name = dim_names, groups = groups, SIMPLIFY = FALSE)
+
+  if(rho != 0){
+    all_groups <- multiway_group_num(groups_list = groups_list, rho = rho, theta = theta)
+  } else {
+    all_groups <- groups_list
+  }
+
+  group_combinations <- expand.grid(all_groups)
+
+  observation_data <- cbind(group_combinations, x_i = rnorm(nrow(group_combinations)), u_i = rnorm(nrow(group_combinations)))
+
+  group_level_x <- mapply(function(groups, name) setNames(data.frame(groups, rnorm(length(groups))), paste0(c('', 'x_'), name)),
+                          groups = groups_list, name = names(groups_list), SIMPLIFY = FALSE)
+
+  group_level_e <- mapply(function(groups, name) setNames(data.frame(groups, rnorm(length(groups))), paste0(c('', 'e_'), name)),
+                          groups = groups_list, name = names(groups_list), SIMPLIFY = FALSE)
+
+  group_level <- c(group_level_x, group_level_e)
+
+  combined_data <- Reduce(f = merge, x = group_level, init = observation_data)
+
+  #Combine data
+  W <- rowSums(combined_data[grepl(pattern = 'x_', names(combined_data))])
+  Y <- rowSums(combined_data[grepl(pattern = 'x_|u_', names(combined_data))])
+
+  return(cbind(group_combinations, Y, W))
+}
+
+
+multiway_group_num <- function(groups_list, rho, theta){
+
+  theta_groups <- ceiling(rho*length(groups_list[[1]]))
+  one_groups <- length(groups_list[[1]]) - theta_groups
+
+  dim_one_vec <- rep(c(theta, 1), times = c(theta_groups, one_groups))
+  dim_one_groups <- list(rep(groups_list[[1]], times= dim_one_vec))
+  names(dim_one_groups) <- names(groups_list)[1]
+
+  all_groups <- c(dim_one_groups, groups_list[2:length(groups_list)])
+
+}
