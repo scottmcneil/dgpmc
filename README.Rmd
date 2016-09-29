@@ -42,7 +42,7 @@ devtools::install_github(repo = 'scottmcneil/wildclusterbootsim', auth_token = '
 
 ## Usage
 
-This package contains just one function for running Monte Carlo simulations, `dgpmc`. The function has five required arguments and two optional arguments.
+This package contains just one function for running Monte Carlo simulations, `dgpmc`. The function has five required arguments and three optional arguments.
 
 The five required arguments are:
 
@@ -60,6 +60,7 @@ Argument | Description
 -------- | ------------------------------------------
 `names`   | Names to identify each element of the vector returned by `stat_func`
 `progbar`   | A boolean indicating whether or not to display a progress bar
+`cores`   | An integer indicating the number of cores you'd like to use
 
 For each replication, `dgpmc` will run `rand_func` with the elements of `rand_args` as parameters. It will then pass the resulting data and the elements of `stat_args` to `stat_func`. The results of all the replications will be combined into an R datframe with `rep` rows and a column for each statistic and columns named using `names`.
 
@@ -163,5 +164,6 @@ knitr::kable(mc_results$stat, format = 'markdown')
 
 This library currently has two built-in DGP functions:
 
-* `simple_dgp` creates a random normal data clusterd by group
+* `simple_dgp` creates a random normal data set, clusterd by group
 * `autocorr_dgp` creates auto-correlated random data, clustered by both time and group
+* `multiway_DGP` creates data correlated by an arbitrary number of group dimensions
