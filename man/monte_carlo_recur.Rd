@@ -4,7 +4,8 @@
 \alias{monte_carlo_recur}
 \title{Repeat Monte Carlo repetitions}
 \usage{
-monte_carlo_recur(reps, stat_func, stat_args, rand_func, rand_args, progbar)
+monte_carlo_recur(reps, stat_func, stat_args, rand_func, rand_args, progbar,
+  cores)
 }
 \arguments{
 \item{reps}{Integer indicating the total Monte Carlo repetitions}
@@ -18,6 +19,8 @@ monte_carlo_recur(reps, stat_func, stat_args, rand_func, rand_args, progbar)
 \item{rand_args}{List of arguments to be passed to stat_func}
 
 \item{progbar}{Progress bar object to be incremented}
+
+\item{cores}{Integer indicating number of cores to use}
 }
 \value{
 Vector or matrix of numerical statistics
