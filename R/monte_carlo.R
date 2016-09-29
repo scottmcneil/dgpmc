@@ -1,13 +1,13 @@
 #' Run one Monte Carlo repetition
 #'
-#' @param rep Integer indicating number of repetitions
 #' @param stat_func Function that takes a dataframe from rand_func and returns a vector of statistics
 #' @param stat_args List of arguments to be passed to stat_func
 #' @param rand_func Function that generates a dataframe of random data given rand_args
 #' @param rand_args List of arguments to be passed to stat_func
+#' @param rep Integer for working with mcmapply
 #' @return Vector of numerical statistics
 #'
-monte_carlo_stat <- function(rep, stat_func, stat_args, rand_func, rand_args){
+monte_carlo_stat <- function(stat_func, stat_args, rand_func, rand_args, rep = NULL){
 
   #Generate set of random data
   data <- do.call(what = rand_func, args = rand_args)
@@ -17,7 +17,10 @@ monte_carlo_stat <- function(rep, stat_func, stat_args, rand_func, rand_args){
   #Run statistical function
   stat_vec <- do.call(what = stat_func, args = stat_args)
 
-  return(stat_vec)
+  #Switch to matrix for maintaining dimensions
+  stat_mat <- matrix(stat_vec)
+
+  return(stat_mat)
 
 }
 
@@ -35,9 +38,20 @@ monte_carlo_stat <- function(rep, stat_func, stat_args, rand_func, rand_args){
 #'
 monte_carlo_block <- function(block, cumulative, stat_func, stat_args, rand_func, rand_args, pb, cores){
 
-  stat_mat <- parallel::mcmapply(FUN = monte_carlo_stat, rep = 1:block, mc.cores = cores,
-                                 MoreArgs = list(stat_func = stat_func, stat_args = stat_args,
-                                                 rand_func = rand_func, rand_args = rand_args))
+  if(cores == 1){
+
+    #If just running on one core, run non-paralell process
+    stat_mat <- monte_carlo_stat(stat_func = stat_func, stat_args = stat_args, rand_func = rand_func, rand_args = rand_args)
+
+  } else {
+
+    #If running in paralell, run and create list of statistics
+    stat_mats <- parallel::mclapply(X = 1:block, FUN = monte_carlo_stat, mc.cores = cores,
+                                    stat_func = stat_func, stat_args = stat_args,
+                                    rand_func = rand_func, rand_args = rand_args)
+
+    stat_mat <- do.call(what = cbind, args = stat_mats)
+  }
 
   #Increment pb if not NULL
   if(class(pb) == 'txtProgressBar'){
@@ -76,13 +90,18 @@ monte_carlo_recur <- function(reps, stat_func, stat_args, rand_func, rand_args, 
     cumulative <- cumsum(blocks)
 
     #Then run monte_carlo_block
-    stat_mat <- mapply(monte_carlo_block, block = blocks, cumulative = cumulative, MoreArgs = list(stat_func = stat_func, stat_args = stat_args,
-                                                                                                   rand_func = rand_func, rand_args = rand_args,
-                                                                                                   pb = pb))
+    stat_mats <- mapply(monte_carlo_block, block = blocks, cumulative = cumulative, SIMPLIFY = FALSE,
+                        MoreArgs = list(stat_func = stat_func, stat_args = stat_args,
+                                        rand_func = rand_func, rand_args = rand_args,
+                                        pb = pb, cores = cores))
+
+    #Combine into matrix
+    stat_mat <- do.call(cbind, stat_mats)
+
   } else{
 
     #Otherwise run replications based on total cores selected
-    stat_mat <- parallel::mcmapply(FUN = monte_carlo_stat, rep = 1:block, mc.cores = cores,
+    stat_mat <- parallel::mcmapply(FUN = monte_carlo_stat, rep = 1:reps, mc.cores = cores,
                                    MoreArgs = list(stat_func = stat_func, stat_args = stat_args,
                                                    rand_func = rand_func, rand_args = rand_args))
 
@@ -108,7 +127,8 @@ dgpmc <- function(reps, stat_func, stat_args, rand_func, rand_args, names = NULL
 
   #Generate stat_mat from monte_carlo_recur
   stat_mat <- monte_carlo_recur(reps = reps, stat_func = stat_func, stat_args = stat_args,
-                                rand_func = rand_func, rand_args = rand_args, progbar = progbar)
+                                rand_func = rand_func, rand_args = rand_args,
+                                progbar = progbar, cores = cores)
 
   #Check if vector or matrix and convert to dataframe
   if(class(stat_mat) == 'matrix'){
