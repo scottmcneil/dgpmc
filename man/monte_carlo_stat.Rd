@@ -4,11 +4,9 @@
 \alias{monte_carlo_stat}
 \title{Run one Monte Carlo repetition}
 \usage{
-monte_carlo_stat(rep, stat_func, stat_args, rand_func, rand_args, progbar)
+monte_carlo_stat(stat_func, stat_args, rand_func, rand_args, rep = NULL)
 }
 \arguments{
-\item{rep}{Integer indicating the current Monte Carlo repetition}
-
 \item{stat_func}{Function that takes a dataframe from rand_func and returns a vector of statistics}
 
 \item{stat_args}{List of arguments to be passed to stat_func}
@@ -17,7 +15,7 @@ monte_carlo_stat(rep, stat_func, stat_args, rand_func, rand_args, progbar)
 
 \item{rand_args}{List of arguments to be passed to stat_func}
 
-\item{progbar}{Progress bar object to be incremented}
+\item{rep}{Integer for working with mcmapply}
 }
 \value{
 Vector of numerical statistics

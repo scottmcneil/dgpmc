@@ -1,87 +1,147 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-wildclusterbootsim
-==================
+dgpmc
+=====
 
-wildclusterboot is a package designed to implement Monte Carlo simulations of clustered standard errors and the wild cluster bootstrap and save the results.
+dgpmc (Data Generation Process Monte Carlo) is a package designed as a thin wrapper for performing Monte Carlo simulations on statistical functions and random data.
 
 Installation
 ------------
 
-The easiest way to install this package is via devtools. First, run the following code:
+The easiest way to install the package is via devtools. First, run the following code in the RStudio console:
 
     install.packages('devtools')
 
-Once devtools is installed, go get a [personal API key](https://github.com/settings/tokens) and then run the following code:
+Once devtools is installed, go get a personal API key [here](https://github.com/settings/tokens). The page will look like the screenshots below. Select "Generate new token" then you may need to input your password.
 
-    devtools::install_github(repo = 'scottmcneil/wildclusterbootsim', auth_token = [auth token you just generated])
+<kbd>![](screenshots/API%20Key%201.png)</kbd>
+
+When you're on the screen below, you'll need to give your token a description (it does not need to be "dgpmc"). Also make sure the "repo" option is selected, like below.
+
+<kbd>![](screenshots/API%20Key%202.png)</kbd>
+
+Finally, make sure you copy the new API token before closing the page, or else you'll need to re-generate it.
+
+Once you've got your API token, run the code below in the RStudio console, replacing YOUR\_AUTH\_TOKEN with the token you just generated.
+
+    devtools::install_github(repo = 'scottmcneil/wildclusterbootsim', auth_token = 'YOUR_AUTH_TOKEN')
 
 Usage
 -----
 
-The main two functions in this library are `wild_cluster_boot_mc` and `muli_wild_cluster_boot_mc`.
+This package contains just one function for running Monte Carlo simulations, `dgpmc`. The function has five required arguments and three optional arguments.
 
-`wild_cluster_boot_mc` allows you to specify a DGP function, a set of DGP arguments, a set of bootstrap arguments and where to save the results. It will then run a set number of Monte Carlo replications and save the results along with the corresponding DGP parameters.
+The five required arguments are:
 
-For example:
+<table style="width:72%;">
+<colgroup>
+<col width="12%" />
+<col width="59%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Argument</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code>reps</code></td>
+<td align="left">The number of total Monte Carlo replications</td>
+</tr>
+<tr class="even">
+<td align="left"><code>stat_func</code></td>
+<td align="left">A function that will take data and return a vector of statistics</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>stat_args</code></td>
+<td align="left">A list of additional arguments to pass to <code>stat_func</code></td>
+</tr>
+<tr class="even">
+<td align="left"><code>rand_func</code></td>
+<td align="left">A function that will generate random data to pass to <code>stat_func</code></td>
+</tr>
+<tr class="odd">
+<td align="left"><code>rand_args</code></td>
+<td align="left">A list of arguments to pass to <code>rand_func</code></td>
+</tr>
+</tbody>
+</table>
 
-    #Specify DGP function
-    dgp <- test_dgp
+The two optional arguments are:
 
-    #Specify DGP parameters
-    t <- 5
-    G <- 5
-    ng <- 30
+| Argument  | Description                                                          |
+|-----------|----------------------------------------------------------------------|
+| `names`   | Names to identify each element of the vector returned by `stat_func` |
+| `progbar` | A boolean indicating whether or not to display a progress bar        |
+| `cores`   | An integer indicating the number of cores you'd like to use          |
 
-    #Create list of dgp_args
-    dgp_args <- list(t = t, G = G, ng = ng, rho = rho, lambda = lambda, gamma = gamma)
+For each replication, `dgpmc` will run `rand_func` with the elements of `rand_args` as parameters. It will then pass the resulting data and the elements of `stat_args` to `stat_func`. The results of all the replications will be combined into an R datframe with `rep` rows and a column for each statistic and columns named using `names`.
 
-    #Specify bootstrap parameters
-    formula <- 'Y ~ X'
-    reps <- 1000
-    x_interest <- 'X'
-    clusterby <- c('G', 'tG')
-    boot_dist <- 'six_pt'
-    boot_reps <- 399
-    bootby <- c('G', 'tG', 'i')
-    H0 <- 1
-    cores <- 3
-    progbar = TRUE
-    save_type = 'db'
-    save_file <- 'wildclusterbootsim.db'
+The function returns a list, where the `stat` element contains the dataframe of results. The other elements in the list are the supplied `stat_func`, `stat_args`, `rand_func` and `rand_args`.
 
-    #Run simulation
-    wild_cluster_boot_mc(dgp = dgp, dgp_args = dgp_args, formula = formula, reps = reps,
-                              x_interest = x_interest, clusterby = clusterby, boot_dist = boot_dist, boot_reps = boot_reps,
-                              bootby = bootby,  H0 = H0, cores = cores, progbar = progbar,
-                              save_type = save_type, save_file = save_file)
+Example
+-------
 
-Currently the only save type that's supported is `'db'` but I can add others.
+Below is an example of usage with very simple examples for `stat_func` and `rand_func`.
 
-`multi_wild_cluster_boot_mc` is essentially the same as `wild_cluster_boot_mc`, but it allows you to specify vectors for DGP arguments, and will run a Monte Carlo on each possible combination of those arguments. It also allows you to turn on a progress bar.
 
-For example:
+    stat_func <- function(data, formula, x_interest, H0){
 
-    #Specify several group and time counts
-    t <- c(5, 6, 7)
-    G <- (5, 10, 15)
-    ng <- 30
+      #Create linear model based on data and formula
+      model <- lm(data = data, formula = formula)
 
-    #Create your list of DGP arguments
-    dgp_args <- list(t = t, G = G, ng = ng, rho = rho, lambda = lambda, gamma = gamma)
+      #Extract coefficient of x of interest
+      x_coef <- coef(model)[[x_interest]]
 
-    #Then run the simulation as before
-    muli_wild_cluster_boot_mc(dgp = dgp, dgp_args = dgp_args, formula = formula, reps = reps,
-                              x_interest = x_interest, clusterby = clusterby, boot_dist = boot_dist, boot_reps = boot_reps,
-                              bootby = bootby,  H0 = H0, cores = cores, progbar = progbar,
-                              save_type = save_type, save_file = save_file)
+      #Extract standard error of x of interest
+      x_se <- sqrt(diag(vcov(model)))[[x_interest]]
 
-The above code would run nine total simulations, one for each combination of `t` and `G`.
+      #Return vectorized hypothesis test on vector of H0
+      2*pt(abs(x_coef - H0)/x_se, df = df.residual(model), lower.tail = FALSE)
+
+    }
+
+    rand_func <- function(n, coef){
+
+      #Create x vector of random normal variables
+      x <- rnorm(n)
+      
+      #Create y vector correlated to x vecto
+      y <- rnorm(n) + coef*x
+      
+      #Return dataframe of combined observations
+      data.frame(y, x)
+
+    }
+
+    stat_args <- list(formula = y ~ x, x_interest = 'x', H0 = c(0.8, 1, 1.2))
+    rand_args <- list(n = 10, coef = 1)
+    reps <- 8
+    stat_names <- c('H01', 'H02', 'H03')
+
+    mc_results <- dgpmc(reps = reps, stat_func = stat_func, stat_args = stat_args, rand_func = rand_func, rand_args = rand_args, names = statnames)
+
+    print(mc_results$stat)
+
+Will produce the following table:
+
+|        H01|        H02|        H03|
+|----------:|----------:|----------:|
+|  0.4299363|  0.2857353|  0.1833407|
+|  0.6873946|  0.8691702|  0.4704641|
+|  0.3146273|  0.5281681|  0.8119407|
+|  0.3351245|  0.6254144|  0.9920525|
+|  0.0468053|  0.0988551|  0.2032164|
+|  0.5201904|  0.8142137|  0.8564774|
+|  0.9401863|  0.6682665|  0.3618710|
+|  0.4594450|  0.2550542|  0.1324828|
 
 Built-in DGP functions
 ----------------------
 
 This library currently has two built-in DGP functions:
 
--   `simple_dgp` creates a random normal data clusterd by group
+-   `simple_dgp` creates a random normal data set, clusterd by group
 -   `autocorr_dgp` creates auto-correlated random data, clustered by both time and group
+-   `multiway_DGP` creates data correlated by an arbitrary number of group dimensions
