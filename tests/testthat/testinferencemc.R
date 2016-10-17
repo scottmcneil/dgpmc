@@ -72,11 +72,11 @@ test_that('monte_carlo_block works with one statistic and one core',{
 
   #Set seed and generate
   set.seed(42, "L'Ecuyer-CMRG")
-  single_test_p <- monte_carlo_block(block = block, cumulative = cumulative, stat_func = stat_func, stat_args = stat_args,
+  single_test_p <- monte_carlo_block(reps = block, cumulative = cumulative, stat_func = stat_func, stat_args = stat_args,
                                      rand_func = rand_func, rand_args = rand_args, pb = pb, seed = seed, cores = cores)
 
   expect_equal(single_test_p, single_p, tolerance = 0.0001)
-  expect_equal(getTxtProgressBar(pb), 3)
+  expect_equal(getTxtProgressBar(pb), 1)
 
 })
 
@@ -89,7 +89,7 @@ test_that('monte_carlo_block works with two statistics and one core',{
   cores <- 1
   block <- 1
   seed <- NULL
-  cumulative <- 3
+  cumulative <- 0
 
   #Create progbar object
   pb <- txtProgressBar(min = 0, max = 5, style = 3)
@@ -99,7 +99,7 @@ test_that('monte_carlo_block works with two statistics and one core',{
 
   #Set seed and generate values
   set.seed(42, "L'Ecuyer-CMRG")
-  double_test_p <- monte_carlo_block(block = block, cumulative = cumulative, stat_func = stat_func, stat_args = stat_args,
+  double_test_p <- monte_carlo_block(reps = block, cumulative = cumulative, stat_func = stat_func, stat_args = stat_args,
                                      rand_func = rand_func, rand_args = rand_args, pb = pb, seed = seed, cores = cores)
 
   #Test if equal
@@ -115,8 +115,8 @@ test_that('monte_carlo_block works with one statistics and two cores',{
 
   #Set block and core to 2
   cores <- 2
-  block <- 2
-  cumulative <- 4
+  reps <- 2
+  cumulative <- 0
 
   set.seed(42, "L'Ecuyer-CMRG")
   seed <- .GlobalEnv$.Random.seed
@@ -127,11 +127,11 @@ test_that('monte_carlo_block works with one statistics and two cores',{
   single_p <- matrix(c(0.0302, 0.4418), nrow = 1)
 
   #Set seed and generate
-  single_test_p <- monte_carlo_block(block = block, cumulative = cumulative, stat_func = stat_func, stat_args = stat_args,
+  single_test_p <- monte_carlo_block(reps = reps, cumulative = cumulative, stat_func = stat_func, stat_args = stat_args,
                                      rand_func = rand_func, rand_args = rand_args, pb = pb, seed = seed, cores = cores)
 
   expect_equal(single_test_p, single_p, tolerance = 0.0001)
-  expect_equal(getTxtProgressBar(pb), 4)
+  expect_equal(getTxtProgressBar(pb), 2)
 
 })
 
@@ -143,8 +143,8 @@ test_that('monte_carlo_block works with two statistics and two cores',{
 
   #Set block and core to 2
   cores <- 2
-  block <- 2
-  cumulative <- 4
+  reps <- 2
+  cumulative <- 0
 
   set.seed(42, "L'Ecuyer-CMRG")
   seed <- .Random.seed
@@ -153,12 +153,12 @@ test_that('monte_carlo_block works with two statistics and two cores',{
   pb <- txtProgressBar(min = 0, max = 5, style = 3)
 
   #Set seed and generate
-  single_test_p <- monte_carlo_block(block = block, cumulative = cumulative, stat_func = stat_func, stat_args = stat_args,
+  single_test_p <- monte_carlo_block(reps = reps, cumulative = cumulative, stat_func = stat_func, stat_args = stat_args,
                                      rand_func = rand_func, rand_args = rand_args, pb = pb, seed = seed, cores = cores)
 
   expect_equal(nrow(single_test_p), 2)
   expect_equal(ncol(single_test_p), 2)
-  expect_equal(getTxtProgressBar(pb), 4)
+  expect_equal(getTxtProgressBar(pb), 2)
 
 })
 
