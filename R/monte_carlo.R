@@ -16,7 +16,7 @@ monte_carlo_stat <- function(stat_func, stat_args, rand_func, rand_args, rep){
   stat_vec <- do.call(what = stat_func, args = c(data, stat_args))
 
   #Switch to matrix for maintaining dimensions
-  stat_mat <- matrix(stat_vec)
+  stat_mat <- matrix(stat_vec, ncol = 1)
 
   return(stat_mat)
 
@@ -35,12 +35,15 @@ monte_carlo_stat <- function(stat_func, stat_args, rand_func, rand_args, rep){
 #' @param cores Integer indicating number of cores to use
 #' @return Vector of numerical statistics
 #'
-monte_carlo_block <- function(block, cumulative, stat_func, stat_args, rand_func, rand_args, pb, seed, cores){
+monte_carlo_block <- function(reps, cumulative, seed, stat_func, stat_args, rand_func, rand_args, pb, cores){
 
-  if(cores == 1){
+  #Set block number
+  block <- min(cores, reps - cumulative)
+
+  stat_mat <- if(cores == 1){
 
     #If just running on one core, run non-paralell process
-    stat_mat <- monte_carlo_stat(stat_func = stat_func, stat_args = stat_args, rand_func = rand_func, rand_args = rand_args)
+    monte_carlo_stat(stat_func = stat_func, stat_args = stat_args, rand_func = rand_func, rand_args = rand_args)
 
   } else {
 
@@ -56,65 +59,45 @@ monte_carlo_block <- function(block, cumulative, stat_func, stat_args, rand_func
                                     mc.set.seed = TRUE, MoreArgs = list(stat_func = stat_func, stat_args = stat_args,
                                                                          rand_func = rand_func, rand_args = rand_args))
 
-    stat_mat <- do.call(what = cbind, args = stat_mats)
+    #Column bind all stat_mats
+    do.call(what = cbind, args = stat_mats)
   }
 
   #Increment pb if not NULL
   if(class(pb) == 'txtProgressBar'){
-    setTxtProgressBar(pb = pb, value = cumulative)
+    setTxtProgressBar(pb = pb, value = cumulative + block)
   }
 
-  return(stat_mat)
+  if(block + cumulative == reps){
 
-}
-
-#' Helper function for L'Ecuyer seeds
-#'
-#' @param blocks List of integers indicating number of repetitions for each block
-#' @param reps Integer indicating the total Monte Carlo repetitions
-#' @param seed Initial seed either from current state or passed explicitely
-#' @param lecuyer Boolean indicating whether to use L'Ecuyer-style seed for multicore reproducibility
-#' @return Vector or matrix of numerical statistics
-#'
-multicore_seeds <- function(blocks, reps, seed, lecuyer){
-
-  seeds <- if(lecuyer){
-
-    #Create reps long list of seeds
-    seeds <- multicore_seeds_recur(n = 1, reps = reps, seed = seed)
-
-    #Create vector of block ids
-    block_ids <- rep(1:length(blocks), times = blocks)
-
-    #Create list of lists of L'Ecuyer seeds
-    all_seeds <- split(x = seeds, f = block_ids)
-    lapply(all_seeds, function(seed_list) seed_list[[1]])
+    #If at end of reps, return current stat_mat
+    return(stat_mat)
 
   } else{
 
-    #Create list of lists of NULL values to be passed as seeds when L'Ecuyer is FALSE
-    rep(list(NULL), length(blocks))
+    #Move seed forward block times
+    seed <- multicore_seeds_recur(1, block + 1, seed)
 
+    #Return column bind of current stat_mat and recursion
+    return(cbind(stat_mat, monte_carlo_block(reps = reps, cumulative = cumulative + block, seed = seed, stat_func = stat_func, stat_args = stat_args,
+                                             rand_func = rand_func, rand_args = rand_args, pb = pb, cores = cores)))
   }
-
-  return(seeds)
 
 }
 
 #' Recursive function for creating list of needed L'Ecuyer seeds
 #'
 #' @param n Integer indicating the current repetition
-#' @param reps Integer indicating the total number of reps
+#' @param block Integer indicating the total number of reps
 #' @param seed Initial seed either from current state or passed explicitely
-#' @param lecuyer Boolean indicating whether to use L'Ecuyer-style seed for multicore reproducibility
-#' @return Vector or matrix of numerical statistics
+#' @return Seed for stream advanced block number times
 #'
-multicore_seeds_recur <- function(n, reps, seed){
+multicore_seeds_recur <- function(n, block, seed){
 
-  if(n >= reps){
-    return(list(seed))
+  if(n >= block){
+    return(seed)
   } else{
-    return(c(list(seed), multicore_seeds_recur(n + 1, reps, parallel::nextRNGStream(seed))))
+    return(multicore_seeds_recur(n + 1, block, parallel::nextRNGStream(seed)))
   }
 
 }
@@ -140,30 +123,20 @@ monte_carlo_recur <- function(reps, stat_func, stat_args, rand_func, rand_args, 
     pb <- NULL
   }
 
-  if(class(pb) == 'txtProgressBar' | cores > 1){
-
-    #If using progress bar, chunk up repetitions by core
-    minus_remain <- rep(cores, reps %/% cores)
-    blocks <- if(reps %% cores == 0) minus_remain else c(minus_remain, reps %% cores)
-    cumulative <- cumsum(blocks)
+  stat_mat <- if(class(pb) == 'txtProgressBar' | cores > 1){
 
     #Create list of lists of seeds
     seed <- .GlobalEnv$.Random.seed
-    seeds <- multicore_seeds(blocks = blocks, reps = reps, seed = seed, lecuyer = lecuyer)
+    cumulative <- 0
 
     #Then run monte_carlo_block
-    stat_mats <- mapply(monte_carlo_block, block = blocks, seed = seeds,
-                        cumulative = cumulative, SIMPLIFY = FALSE, MoreArgs = list(stat_func = stat_func, stat_args = stat_args,
-                                                                                   rand_func = rand_func, rand_args = rand_args,
-                                                                                   pb = pb, cores = cores))
-
-    #Combine into matrix
-    stat_mat <- do.call(cbind, stat_mats)
+    monte_carlo_block(reps = reps, cumulative = cumulative, seed = seed, stat_func = stat_func, stat_args = stat_args,
+                                   rand_func = rand_func, rand_args = rand_args, pb = pb, cores = cores)
 
   } else{
 
     #Otherwise run replications sequentially
-    stat_mat <- mapply(FUN = monte_carlo_stat, rep = 1:reps, MoreArgs = list(stat_func = stat_func, stat_args = stat_args,
+    mapply(FUN = monte_carlo_stat, rep = 1:reps, MoreArgs = list(stat_func = stat_func, stat_args = stat_args,
                                                                              rand_func = rand_func, rand_args = rand_args))
 
   }
