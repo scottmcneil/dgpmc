@@ -20,7 +20,7 @@ test_that('multiway_DGP works with two groups',{
 
 })
 
-test_that('multiway_DGP works with two groups',{
+test_that('multiway_DGP works with unbalanced clusters',{
 
   test_data <- data.frame(H = c('H1', 'H1', 'H2', 'H1', 'H1', 'H2'),
                           G = c('G1', 'G1', 'G1', 'G2', 'G2', 'G2'),
@@ -41,11 +41,11 @@ test_that('multiway_DGP works with two groups',{
 
 })
 
-test_that('multiway_DGP works with two groups',{
+test_that('multiway_DGP works with heteroskedasticity',{
 
   test_data <- data.frame(H = c('H1', 'H2', 'H1', 'H2'),
                           G = c('G1' ,'G1' ,'G2' ,'G2'),
-                          Y = c(-51.6942275, 0.6969104, -7.0074177, 2.2014544),
+                          Y = c(-3.4479839, 0.6771162, 6.4144015, 2.2479845),
                           W = c(2.1383552, -0.3076943, 3.5153430, -0.0264946))
 
 

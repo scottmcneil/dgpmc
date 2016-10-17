@@ -156,7 +156,7 @@ multiway_DGP <- function(num_dims, groups, rho = 0, theta = 1, dim_names = rev(L
                           groups = groups_list, name = names(groups_list), SIMPLIFY = FALSE)
 
   #Add heteroskedasticity if TRUE
-  sd <- if(heterosked) 9*W^2 else 1
+  sd <- if(heterosked) 3*abs(W) else 1
 
   #Generate individual level e-values (potentially with heteroskedasticity)
   ind_level_e <- rnorm(nrow(group_combinations), sd = sd)
