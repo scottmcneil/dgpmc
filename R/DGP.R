@@ -119,9 +119,12 @@ simple_DGP <- function(ng,G){
 #' @param dims Integer indicating the number of group dimensions
 #' @param groups Vector of dims length with integers indicating total groups for each group dimension
 #' @param rho Float indicating portion of first dimension groups for which cells wil have theta observations instead of 1
-#' @return theta
+#' @param theta Integer indicating number of members of larger groups set out in rho
+#' @param dim_names Character vector of names for dimensions, default is starting with H and working backward alphabetically
+#' @param heterosked Boolean indicating whether to include heteroskedasticity (currently calculated by making sd(e_i) = 9*W^2)
+#' @return dataframe of group-correlated random values
 #' @export
-multiway_DGP <- function(num_dims, groups, rho = 0, theta = 1, dim_names = rev(LETTERS)[19:(18+num_dims)]){
+multiway_DGP <- function(num_dims, groups, rho = 0, theta = 1, dim_names = rev(LETTERS)[1:num_dims+18], heterosked = FALSE){
 
   groups_list <- mapply(function(dim_name, groups) paste0(dim_name, 1:groups),
                         dim_name = dim_names, groups = groups, SIMPLIFY = FALSE)
@@ -132,23 +135,37 @@ multiway_DGP <- function(num_dims, groups, rho = 0, theta = 1, dim_names = rev(L
     all_groups <- groups_list
   }
 
+  #Get combinatorial dataframe of groups from different dimensions
   group_combinations <- expand.grid(all_groups)
 
-  observation_data <- cbind(group_combinations, x_i = rnorm(nrow(group_combinations)), u_i = rnorm(nrow(group_combinations)))
-
+  #Generate group level x-values
   group_level_x <- mapply(function(groups, name) setNames(data.frame(groups, rnorm(length(groups))), paste0(c('', 'x_'), name)),
                           groups = groups_list, name = names(groups_list), SIMPLIFY = FALSE)
 
+  #Generate individual level x-values
+  ind_level_x <- rnorm(nrow(group_combinations))
+
+  #Combine x-values
+  x_data <- Reduce(f = merge, x = group_level_x, init = cbind(group_combinations, x_i = ind_level_x))
+
+  #Sum up x-values across rows
+  W <- rowSums(x_data[grepl(pattern = 'x_', names(x_data))])
+
+  #Create group-level e-values
   group_level_e <- mapply(function(groups, name) setNames(data.frame(groups, rnorm(length(groups))), paste0(c('', 'e_'), name)),
                           groups = groups_list, name = names(groups_list), SIMPLIFY = FALSE)
 
-  group_level <- c(group_level_x, group_level_e)
+  #Add heteroskedasticity if TRUE
+  sd <- if(heterosked) 9*W^2 else 1
 
-  combined_data <- Reduce(f = merge, x = group_level, init = observation_data)
+  #Generate individual level e-values (potentially with heteroskedasticity)
+  ind_level_e <- rnorm(nrow(group_combinations), sd = sd)
 
-  #Combine data
-  W <- rowSums(combined_data[grepl(pattern = 'x_', names(combined_data))])
-  Y <- rowSums(combined_data[grepl(pattern = 'x_|u_', names(combined_data))])
+  #Combine e-values
+  e_data <- Reduce(f = merge, x = group_level_e, init = cbind(group_combinations, e_i = ind_level_e))
+
+  #Sum up all e values and W
+  Y <- W + rowSums(e_data[grepl(pattern = 'e_', names(e_data))])
 
   return(cbind(group_combinations, Y, W))
 }
