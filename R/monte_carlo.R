@@ -38,12 +38,15 @@ monte_carlo_stat <- function(stat_func, stat_args, rand_func, rand_args, rep){
 monte_carlo_block <- function(reps, cumulative, seed, stat_func, stat_args, rand_func, rand_args, pb, cores){
 
   #Set block number
-  block <- min(cores, reps - cumulative)
+  block <- min(reps - cumulative, max(cores, ceiling(reps/100)))
 
   stat_mat <- if(cores == 1){
 
     #If just running on one core, run non-paralell process
-    monte_carlo_stat(stat_func = stat_func, stat_args = stat_args, rand_func = rand_func, rand_args = rand_args)
+    stat_mats <- mapply(FUN = monte_carlo_stat, rep = 1:block,  SIMPLIFY = FALSE, MoreArgs = list(stat_func = stat_func, stat_args = stat_args,
+                                                                                                  rand_func = rand_func, rand_args = rand_args))
+
+    do.call(what = cbind, args = stat_mats)
 
   } else {
 

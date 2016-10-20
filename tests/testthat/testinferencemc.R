@@ -61,9 +61,9 @@ test_that('monte_carlo_block works with one statistic and one core',{
   rand_args <- list(n = 10, coef = 1)
 
   cores <- 1
-  block <- 1
-  cumulative <- 3
-  seeds <- NULL
+  reps <- 1
+  cumulative <- 0
+  seed <- NULL
 
   #Create progbar object
   pb <- txtProgressBar(min = 0, max = 5, style = 3)
@@ -72,7 +72,7 @@ test_that('monte_carlo_block works with one statistic and one core',{
 
   #Set seed and generate
   set.seed(42, "L'Ecuyer-CMRG")
-  single_test_p <- monte_carlo_block(reps = block, cumulative = cumulative, stat_func = stat_func, stat_args = stat_args,
+  single_test_p <- monte_carlo_block(reps = reps, cumulative = cumulative, stat_func = stat_func, stat_args = stat_args,
                                      rand_func = rand_func, rand_args = rand_args, pb = pb, seed = seed, cores = cores)
 
   expect_equal(single_test_p, single_p, tolerance = 0.0001)
@@ -87,9 +87,9 @@ test_that('monte_carlo_block works with two statistics and one core',{
   rand_args <- list(n = 10, coef = 1)
 
   cores <- 1
-  block <- 1
-  seed <- NULL
+  reps <- 1
   cumulative <- 0
+  seed <- NULL
 
   #Create progbar object
   pb <- txtProgressBar(min = 0, max = 5, style = 3)
@@ -99,7 +99,7 @@ test_that('monte_carlo_block works with two statistics and one core',{
 
   #Set seed and generate values
   set.seed(42, "L'Ecuyer-CMRG")
-  double_test_p <- monte_carlo_block(reps = block, cumulative = cumulative, stat_func = stat_func, stat_args = stat_args,
+  double_test_p <- monte_carlo_block(reps = reps, cumulative = cumulative, stat_func = stat_func, stat_args = stat_args,
                                      rand_func = rand_func, rand_args = rand_args, pb = pb, seed = seed, cores = cores)
 
   #Test if equal
@@ -310,5 +310,30 @@ test_that('dgpmc works with one statistic and two cores',{
   expect_equal(single_test_p$stat_args, stat_args)
   expect_equal(single_test_p$rand_func, rand_func)
   expect_equal(single_test_p$rand_args, rand_args)
+
+})
+
+test_that('dgpmc does not run into recursion depth error',{
+
+  #Create dummy stat function
+  stat_func <- function(data, dummy){
+
+    return(data)
+
+  }
+
+  #Create dummy rand function
+  rand_func <- function(dummy){
+
+    return(1)
+
+  }
+
+  stat_args <- list(dummy = 1)
+  rand_args <- list(dummy = 1)
+
+  expect_error(dgpmc(reps = 1000, stat_func = stat_func, stat_args = stat_args,
+                     rand_func = rand_func, rand_args = rand_args, progbar = TRUE, cores = 2),
+               NA)
 
 })
