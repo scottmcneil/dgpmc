@@ -149,25 +149,27 @@ multiway_DGP <- function(num_dims, groups, rho = 0, theta = 1, dim_names = rev(L
   x_data <- Reduce(f = merge, x = group_level_x, init = cbind(group_combinations, x_i = ind_level_x))
 
   #Sum up x-values across rows
-  W <- rowSums(x_data[grepl(pattern = 'x_', names(x_data))])
+  W_data <- cbind(x_data, W = rowSums(x_data[grepl(pattern = 'x_', names(x_data))]))
 
   #Create group-level e-values
   group_level_e <- mapply(function(groups, name) setNames(data.frame(groups, rnorm(length(groups))), paste0(c('', 'e_'), name)),
                           groups = groups_list, name = names(groups_list), SIMPLIFY = FALSE)
 
   #Add heteroskedasticity if TRUE
-  sd <- if(heterosked) 3*abs(W) else 1
+  sd <- if(heterosked) 3*abs(W_data[,'W']) else 1
 
   #Generate individual level e-values (potentially with heteroskedasticity)
   ind_level_e <- rnorm(nrow(group_combinations), sd = sd)
 
   #Combine e-values
-  e_data <- Reduce(f = merge, x = group_level_e, init = cbind(group_combinations, e_i = ind_level_e))
+  e_data <- Reduce(f = merge, x = group_level_e, init = cbind(W_data, e_i = ind_level_e))
 
   #Sum up all e values and W
-  Y <- W + rowSums(e_data[grepl(pattern = 'e_', names(e_data))])
+  e_data['Y'] <- e_data[,'W'] + rowSums(e_data[grepl(pattern = 'e_', names(e_data))])
 
-  return(cbind(group_combinations, Y, W))
+  data <- cbind(e_data[dim_names], e_data[c('Y', 'W')])
+
+  return(data)
 }
 
 
