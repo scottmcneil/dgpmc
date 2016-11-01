@@ -45,7 +45,7 @@ test_that('multiway_DGP works with heteroskedasticity',{
 
   test_data <- data.frame(H = c('H1', 'H2', 'H1', 'H2'),
                           G = c('G1' ,'G1' ,'G2' ,'G2'),
-                          Y = c(-3.4479839, 0.6771162, 6.4144015, 2.2479845),
+                          Y = c(3.5695995, 0.88639727, 6.99633298, 2.42311497),
                           W = c(2.1383552, -0.3076943, 3.5153430, -0.0264946))
 
 
@@ -60,4 +60,3 @@ test_that('multiway_DGP works with heteroskedasticity',{
   expect_equal(test_data, function_data, tolerance= 0.00001)
 
 })
-
