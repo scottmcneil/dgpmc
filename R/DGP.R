@@ -157,7 +157,8 @@ multiway_DGP <- function(num_dims, groups, rho = 0, theta = 1, dim_names = rev(L
 
   #Add heteroskedasticity if TRUE
   sd <- if(heterosked){
-      abs(Reduce('*', W_data[grepl('x_[^i]', names(W_data))] + W_data[,'x_i']))
+      var <- abs(Reduce('*', W_data[grepl('x_[^i]', names(W_data))] + W_data[,'x_i']))
+      sqrt(var)
     } else {
       1
     }

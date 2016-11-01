@@ -35,7 +35,7 @@ Finally, make sure you copy the new API token before closing the page, or else y
 Once you've got your API token, run the code below in the RStudio console, replacing YOUR_AUTH_TOKEN with the token you just generated.
 
 ```
-devtools::install_github(repo = 'scottmcneil/wildclusterbootsim', auth_token = 'YOUR_AUTH_TOKEN')
+devtools::install_github(repo = 'scottmcneil/dgpmc', auth_token = 'YOUR_AUTH_TOKEN')
 
 ```
 
