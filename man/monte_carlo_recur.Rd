@@ -5,7 +5,7 @@
 \title{Repeat Monte Carlo repetitions}
 \usage{
 monte_carlo_recur(reps, stat_func, stat_args, rand_func, rand_args, progbar,
-  cores)
+  lecuyer, cores, seed_ffwd)
 }
 \arguments{
 \item{reps}{Integer indicating the total Monte Carlo repetitions}
@@ -20,7 +20,11 @@ monte_carlo_recur(reps, stat_func, stat_args, rand_func, rand_args, progbar,
 
 \item{progbar}{Progress bar object to be incremented}
 
+\item{lecuyer}{Boolean indicating whether to use L'Ecuyer-style seed for multicore reproducibility}
+
 \item{cores}{Integer indicating number of cores to use}
+
+\item{seed_ffwd}{Integer indicating the number of L'Ecuyer streams to move ahead, for reproducibility purposes}
 }
 \value{
 Vector or matrix of numerical statistics

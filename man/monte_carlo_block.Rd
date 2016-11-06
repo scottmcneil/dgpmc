@@ -4,13 +4,13 @@
 \alias{monte_carlo_block}
 \title{Run block of Monte Carlo repetitions}
 \usage{
-monte_carlo_block(block, cumulative, stat_func, stat_args, rand_func, rand_args,
-  pb, cores)
+monte_carlo_block(reps, cumulative, seed, stat_func, stat_args, rand_func,
+  rand_args, pb, cores, seed_ffwd)
 }
 \arguments{
-\item{block}{Integer indicating number of repetitions for block}
-
 \item{cumulative}{Integer indicating total repetitions completed including this block}
+
+\item{seed}{List of seeds to be passed to each replication, will be NULL if lecuyer is set to FALSE}
 
 \item{stat_func}{Function that takes a dataframe from rand_func and returns a vector of statistics}
 
@@ -23,6 +23,10 @@ monte_carlo_block(block, cumulative, stat_func, stat_args, rand_func, rand_args,
 \item{pb}{Progress bar object to be incremented}
 
 \item{cores}{Integer indicating number of cores to use}
+
+\item{seed_ffwd}{Integer indicating the number of L'Ecuyer streams to move ahead, for reproducibility purposes}
+
+\item{block}{Integer indicating number of repetitions for block}
 }
 \value{
 Vector of numerical statistics

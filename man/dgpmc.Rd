@@ -5,7 +5,8 @@
 \title{Run random data Monte Carlo}
 \usage{
 dgpmc(reps, stat_func, stat_args, rand_func, rand_args, names = NULL,
-  progbar = FALSE, cores = 1)
+  progbar = FALSE, seed = NULL, lecuyer = FALSE, seed_ffwd = 0,
+  cores = 1, email = NULL)
 }
 \arguments{
 \item{reps}{Integer indicating the total Monte Carlo repetitions}
@@ -20,7 +21,15 @@ dgpmc(reps, stat_func, stat_args, rand_func, rand_args, names = NULL,
 
 \item{progbar}{Boolean for whether progress bar should be used}
 
+\item{seed}{Integer indicating the initial seed to use, default is Mersenne Twister}
+
+\item{lecuyer}{Boolean indicating whether to use L'Ecuyer-style seed for multicore reproducibility}
+
+\item{seed_ffwd}{Integer indicating the number of L'Ecuyer streams to move ahead, for reproducibility purposes}
+
 \item{cores}{Integer indicating number of cores to use}
+
+\item{email}{List of options to pass to mailR send.mail function to send email alert when simulation completed}
 }
 \value{
 Vector or matrix of numerical statistics
