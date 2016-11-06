@@ -4,7 +4,7 @@
 \alias{monte_carlo_stat}
 \title{Run one Monte Carlo repetition}
 \usage{
-monte_carlo_stat(stat_func, stat_args, rand_func, rand_args, rep = NULL)
+monte_carlo_stat(stat_func, stat_args, rand_func, rand_args, seed = NULL, rep)
 }
 \arguments{
 \item{stat_func}{Function that takes a dataframe from rand_func and returns a vector of statistics}
@@ -15,7 +15,7 @@ monte_carlo_stat(stat_func, stat_args, rand_func, rand_args, rep = NULL)
 
 \item{rand_args}{List of arguments to be passed to stat_func}
 
-\item{rep}{Integer for working with mcmapply}
+\item{seed}{Seed which is either null or sets the L'Ecuyer seed for multicore}
 }
 \value{
 Vector of numerical statistics

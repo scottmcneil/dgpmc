@@ -8,5 +8,8 @@ Description: Thin wrapper for performing Monte Carlo simulations on a statistica
 License: What license is it under?
 LazyData: TRUE
 Suggests:
-    testthat
+    testthat,
+    mailR
+Imports:
+    parallel,
 RoxygenNote: 5.0.1
