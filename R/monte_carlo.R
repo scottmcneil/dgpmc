@@ -4,10 +4,15 @@
 #' @param stat_args List of arguments to be passed to stat_func
 #' @param rand_func Function that generates a dataframe of random data given rand_args
 #' @param rand_args List of arguments to be passed to stat_func
-#' @param rep Integer for working with multicore
+#' @param seed Seed which is either null or sets the L'Ecuyer seed for multicore
 #' @return Vector of numerical statistics
 #'
-monte_carlo_stat <- function(stat_func, stat_args, rand_func, rand_args, rep){
+monte_carlo_stat <- function(stat_func, stat_args, rand_func, rand_args, seed = NULL, rep){
+
+  #If using L'Ecuyer seeds, set seed:
+  if(!is.null(seed)){
+    .GlobalEnv$.Random.seed <- seed
+  }
 
   #Generate set of random data, formatted as named list
   data <- list(data = do.call(what = rand_func, args = rand_args))
