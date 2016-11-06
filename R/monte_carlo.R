@@ -223,6 +223,15 @@ dgpmc <- function(reps, stat_func, stat_args, rand_func, rand_args, names = NULL
   #Set names of dataframe
   names(stat_df) <- names
 
+  #If email options included, try to send email alert
+  if(!is.null(email)){
+    tryCatch({
+      do.call(what = mailR::send.mail, args = email)
+    },
+      print('Email alert failed')
+    )
+  }
+
   return(list(stat = stat_df, stat_func = stat_func, stat_args = stat_args, rand_func = rand_func, rand_args = rand_args))
 
 }
