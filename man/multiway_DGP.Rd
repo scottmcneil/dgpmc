@@ -5,17 +5,23 @@
 \title{Generate multi-way grouped random data}
 \usage{
 multiway_DGP(num_dims, groups, rho = 0, theta = 1,
-  dim_names = rev(LETTERS)[19:(18 + num_dims)])
+  dim_names = rev(LETTERS)[1:num_dims + 18], heterosked = FALSE)
 }
 \arguments{
 \item{groups}{Vector of dims length with integers indicating total groups for each group dimension}
 
 \item{rho}{Float indicating portion of first dimension groups for which cells wil have theta observations instead of 1}
 
+\item{theta}{Integer indicating number of members of larger groups set out in rho}
+
+\item{dim_names}{Character vector of names for dimensions, default is starting with H and working backward alphabetically}
+
+\item{heterosked}{Boolean indicating whether to include heteroskedasticity (currently calculated by making sd(e_i) = 9*W^2)}
+
 \item{dims}{Integer indicating the number of group dimensions}
 }
 \value{
-theta
+dataframe of group-correlated random values
 }
 \description{
 Generate multi-way grouped random data
