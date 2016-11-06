@@ -119,10 +119,12 @@ monte_carlo_block <- function(reps, cumulative, seed, stat_func, stat_args, rand
 #'
 multicore_seeds_recur <- function(n, block, seed){
 
-  if(n >= block){
-    return(seed)
+  seed <- parallel::nextRNGStream(seed)
+
+  if(n < block){
+    return(c(list(seed), multicore_seeds_recur(n + 1, block, seed)))
   } else{
-    return(multicore_seeds_recur(n + 1, block, parallel::nextRNGStream(seed)))
+    return(list(seed))
   }
 
 }
