@@ -228,7 +228,7 @@ dgpmc <- function(reps, stat_func, stat_args, rand_func, rand_args, names = NULL
     tryCatch({
       do.call(what = mailR::send.mail, args = email)
     },
-      print('Email alert failed')
+      error = function(e) {print('Email alert failed')}
     )
   }
 
