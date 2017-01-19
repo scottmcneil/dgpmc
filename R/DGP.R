@@ -92,23 +92,28 @@ autocorr_dgp <- function(t, G, ng, rho = 1, lambda = 1, gamma = 1, mu = 0, sigma
 #'
 #' @param G The number of groups in each time period
 #' @param ng Obs per group, either int or G-length vector
+#' @param heterosked Boolean indicating whether to use heteroskedastic errors
 #' @return Dataframe with X, Y and clusterby random variables
 #' @export
-simple_DGP <- function(ng,G){
+simple_DGP <- function(ng, G, heterosked = FALSE){
 
   #Create clusterby variable
   clusterby <- as.integer(0:(ng*G-1)/ng+1)
 
-  #Create individual level random data
+  #Create X data
   zig <- rnorm(n = G*ng,mean = 0,sd = 1)
-  eig <- rnorm(n = G*ng,mean = 0,sd = 1)
+  zg <- rep(rnorm(n = G,mean = 0,sd = 1), each=ng)
+  X <- zg + zig
 
-  #Create group level random data
-  zg <- rep(rnorm(n = G,mean = 0,sd = 1),each=ng)
-  eg <- rep(rnorm(n = G,mean = 0,sd = 1),each=ng)
+  #Create sd for heteroskedastic errors
+  sd <- if(heterosked) 3*abs(X) else 1
+
+  #Create Y data
+  eg <- rep(rnorm(n = G,mean = 0,sd = 1), each=ng)
+  eig <- rnorm(n = G*ng,mean = 0,sd = sd)
 
   #Combine data
-  X <- zg + zig
+
   Y <- zg + zig + eg + eig
 
   return(data.frame(Y = Y, X = X, clusterby = clusterby))
